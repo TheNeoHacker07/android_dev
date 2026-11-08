@@ -1,5 +1,7 @@
 import "package:android_dev/screens/home_screen/models/post_model.dart";
 import "package:flutter/material.dart";
+import "package:android_dev/screens/content/comments_widget.dart";
+
 
 class PostWidget extends StatefulWidget {
   final PostModel? post;
@@ -20,9 +22,7 @@ class _PostWidgetState extends State<PostWidget> {
         return Container(
           height: 200,
           color: Colors.white,
-          child: Center(
-            child: Text('Bottom Sheet Content'),
-          ),
+          child: CommentListWidget(comments: widget.post?.comments ?? []),
         );
       },
     );
