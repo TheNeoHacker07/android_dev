@@ -12,9 +12,14 @@ class PostWidget extends StatefulWidget {
 }
 
 class _PostWidgetState extends State<PostWidget> {
-  final bool isLiked = false; 
- // This should ideally be managed by state management
-
+  void toggleLike() {
+    final post = widget.post;
+    if (post == null) return;
+    setState(() {
+      post.isLiked = !post.isLiked;
+      post.addLike((post.likeCount ?? 0) + (post.isLiked ? 1 : -1));
+    });
+  }
  void openBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -57,17 +62,10 @@ class _PostWidgetState extends State<PostWidget> {
           Row(
             children: [
               IconButton(
-                icon: Icon(isLiked ? Icons.favorite : Icons.favorite_border),
-                onPressed: () {
-                  setState(() {
-                    // This should ideally update the like count in a state management solution
-                    if (isLiked) {
-                      widget.post?.addLike((widget.post?.likeCount ?? 1) - 1);
-                    } else {
-                      widget.post?.addLike((widget.post?.likeCount ?? 0) + 1);
-                    }
-                  });
-                },
+                icon: (widget.post?.isLiked ?? false)
+                    ? const Icon(Icons.favorite, color: Colors.red)
+                    : const Icon(Icons.favorite_border),
+                onPressed: toggleLike,
               ),
               IconButton(
                 icon: const Icon(Icons.comment),
@@ -85,6 +83,16 @@ class _PostWidgetState extends State<PostWidget> {
                 onPressed: () {},
               ),
             ],
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                '${widget.post?.likeCount ?? 0} likes',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
           ),
           Text(
             widget.post?.description ?? '',

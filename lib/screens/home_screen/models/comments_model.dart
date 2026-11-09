@@ -4,6 +4,7 @@ class CommentModel {
   final String author;
   final String? likeImageUrl;
   final String? userImageUrl;
+  bool isLiked = false;
 
   CommentModel({
     required this.id,

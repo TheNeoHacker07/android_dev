@@ -5,13 +5,19 @@ const _defaultLikeImageUrl =
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUAgHFb3z2Z4sV6Jv9pREKSXdWG18FAFk9By-deHO9Ig&s=10';
 
 
-class CommentListWidget extends StatelessWidget {
+class CommentListWidget extends StatefulWidget {
   final List<CommentModel> comments;
 
   const CommentListWidget({super.key, required this.comments});
 
   @override
+  State<CommentListWidget> createState() => _CommentListWidgetState();
+}
+
+class _CommentListWidgetState extends State<CommentListWidget> {
+  @override
   Widget build(BuildContext context) {
+    final comments = widget.comments;
     return ListView.builder(
       itemCount: comments.length,
       itemBuilder: (context, index) {
@@ -22,10 +28,17 @@ class CommentListWidget extends StatelessWidget {
           leading: comment.userImageUrl != null
               ? CircleAvatar(backgroundImage: NetworkImage(comment.userImageUrl!))
               : null,
-          trailing: Image.network(
-            comment.likeImageUrl ?? _defaultLikeImageUrl,
-            width: 24,
-            height: 24,
+          trailing: IconButton(
+            onPressed: () => setState(() => comment.isLiked = !comment.isLiked),
+            // faded until liked, full color once liked
+            icon: Opacity(
+              opacity: comment.isLiked ? 1 : 0.3,
+              child: Image.network(
+                comment.likeImageUrl ?? _defaultLikeImageUrl,
+                width: 24,
+                height: 24,
+              ),
+            ),
           ),
         );
       },
