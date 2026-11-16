@@ -15,4 +15,8 @@ class CommentServices {
     comments.addAll(newComments);
   }
 
+  void toggleLike(CommentModel comment) {
+    comment.isLiked = !comment.isLiked;
+  }
+
 }

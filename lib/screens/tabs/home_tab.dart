@@ -1,17 +1,17 @@
 import "package:android_dev/screens/content/post_widget.dart";
 import "package:android_dev/screens/content/story_widget.dart";
-import "package:android_dev/screens/home_screen/data/mock_data.dart";
-import "package:android_dev/screens/home_screen/services/post_services.dart";
+import "package:android_dev/screens/home_screen/providers/feed_providers.dart";
 import "package:flutter/material.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
-class HomeTab extends StatelessWidget {
-  const new({super.key});
+class HomeTab extends ConsumerWidget {
+  const HomeTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    PostServices postServices = PostServices();
-    postServices.batchAddPosts(mockPosts);
-    postServices.batchAddStories(mockStories);
+  Widget build(BuildContext context, WidgetRef ref) {
+    // watch = rebuild this screen whenever the data changes
+    final posts = ref.watch(feedProvider);
+    final stories = ref.watch(storiesProvider);
 
     return Scaffold(
       backgroundColor: Colors.grey[200],
@@ -20,14 +20,19 @@ class HomeTab extends StatelessWidget {
       ),
       body: ListView.builder(
         // +1 because the first item is the stories row
-        itemCount: postServices.posts.length + 1,
+        itemCount: posts.length + 1,
         itemBuilder: (context, index) {
           if (index == 0) {
-            return StoriesListWidget(stories: postServices.stories);
+            return StoriesListWidget(stories: stories);
           }
+          final post = posts[index - 1];
           return Padding(
             padding: const EdgeInsets.all(4.0),
-            child: PostWidget(post: postServices.posts[index - 1]),
+            child: PostWidget(
+              post: post,
+              // read = call an action once, don't subscribe
+              onLike: () => ref.read(feedProvider.notifier).toggleLike(post),
+            ),
           );
         },
       ),

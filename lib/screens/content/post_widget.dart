@@ -3,31 +3,21 @@ import "package:flutter/material.dart";
 import "package:android_dev/screens/content/comments_widget.dart";
 
 
-class PostWidget extends StatefulWidget {
+/// Only displays a post. The like logic lives in feedProvider; this widget
+/// just reports the tap through [onLike].
+class PostWidget extends StatelessWidget {
   final PostModel? post;
-  const PostWidget({super.key,required this.post});
+  final VoidCallback onLike;
+  const PostWidget({super.key, required this.post, required this.onLike});
 
-  @override
-  State<PostWidget> createState() => _PostWidgetState();
-}
-
-class _PostWidgetState extends State<PostWidget> {
-  void toggleLike() {
-    final post = widget.post;
-    if (post == null) return;
-    setState(() {
-      post.isLiked = !post.isLiked;
-      post.addLike((post.likeCount ?? 0) + (post.isLiked ? 1 : -1));
-    });
-  }
- void openBottomSheet() {
+  void openBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return Container(
           height: 200,
           color: Colors.white,
-          child: CommentListWidget(comments: widget.post?.comments ?? []),
+          child: CommentListWidget(comments: post?.comments ?? []),
         );
       },
     );
@@ -54,7 +44,7 @@ class _PostWidgetState extends State<PostWidget> {
           ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
             child: Image.network(
-              widget.post?.imageUrl ?? 'https://via.placeholder.com/150',
+              post?.imageUrl ?? 'https://via.placeholder.com/150',
               width: double.infinity,
               fit: BoxFit.cover,
             ),
@@ -62,16 +52,14 @@ class _PostWidgetState extends State<PostWidget> {
           Row(
             children: [
               IconButton(
-                icon: (widget.post?.isLiked ?? false)
+                icon: (post?.isLiked ?? false)
                     ? const Icon(Icons.favorite, color: Colors.red)
                     : const Icon(Icons.favorite_border),
-                onPressed: toggleLike,
+                onPressed: onLike,
               ),
               IconButton(
                 icon: const Icon(Icons.comment),
-                onPressed: () {
-                  openBottomSheet();
-                },
+                onPressed: () => openBottomSheet(context),
               ),
               IconButton(
                 icon: const Icon(Icons.share),
@@ -89,13 +77,13 @@ class _PostWidgetState extends State<PostWidget> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
-                '${widget.post?.likeCount ?? 0} likes',
+                '${post?.likeCount ?? 0} likes',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ),
           Text(
-            widget.post?.description ?? '',
+            post?.description ?? '',
             style: const TextStyle(fontSize: 16.0),
           ),
 
