@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import "screens/main_screen.dart";
+import "screens/auth/auth_gate.dart";
 
 void main() {
   // ProviderScope stores the state of every provider in the app.
@@ -14,7 +14,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MainScreen()
+      home: AuthGate()
     );
   }
 }

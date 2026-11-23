@@ -1,21 +1,22 @@
+/// One comment as the comments sheet shows it. Built from a database query.
 class CommentModel {
-  final String id;
-  final String text;
+  final int id;
+  final int postId;
   final String author;
-  final String? likeImageUrl;
   final String? userImageUrl;
-  bool isLiked = false;
+  final String text;
+  final int likeCount;
 
-  CommentModel({
+  /// Whether the logged-in user likes this comment.
+  final bool isLiked;
+
+  const CommentModel({
     required this.id,
-    required this.text,
+    required this.postId,
     required this.author,
-    this.likeImageUrl,
     this.userImageUrl,
+    required this.text,
+    this.likeCount = 0,
+    this.isLiked = false,
   });
-
-
-  void addComment(String newText) {
-    
-  }
 }

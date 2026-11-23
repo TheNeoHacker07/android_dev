@@ -1,29 +1,25 @@
-import "package:android_dev/screens/home_screen/models/comments_model.dart";
-
+/// One post as the feed shows it. Built from a database query, never changed
+/// in place: after a like the database changes and a fresh list arrives.
 class PostModel {
-  final String? imageUrl;
-  int? likeCount;
-  int? commentCount;
-  final String? description;
-  final List<CommentModel>? comments;
-  bool isLiked = false;
+  final int id;
+  final String author;
+  final String? authorAvatarUrl;
+  final String imageUrl;
+  final String description;
+  final int likeCount;
+  final int commentCount;
 
-  PostModel({
-    this.imageUrl,
-    this.likeCount,
-    this.commentCount,
-    this.description,
-    this.comments,
+  /// Whether the logged-in user likes this post.
+  final bool isLiked;
+
+  const PostModel({
+    required this.id,
+    required this.author,
+    this.authorAvatarUrl,
+    required this.imageUrl,
+    required this.description,
+    this.likeCount = 0,
+    this.commentCount = 0,
+    this.isLiked = false,
   });
-
-  void addLike(int newCount) {
-    // This method should ideally update the like count in a state management solution
-    likeCount = newCount;
-  }
-
-  void addComment(int newCount) {
-    // This method should ideally update the comment count in a state management solution
-    commentCount = newCount;
-  }
-
 }

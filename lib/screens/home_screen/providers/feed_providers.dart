@@ -1,4 +1,5 @@
-import 'package:android_dev/screens/home_screen/data/mock_data.dart';
+import 'package:android_dev/core/db/database_provider.dart';
+import 'package:android_dev/screens/auth/providers/auth_providers.dart';
 import 'package:android_dev/screens/home_screen/models/comments_model.dart';
 import 'package:android_dev/screens/home_screen/models/post_model.dart';
 import 'package:android_dev/screens/home_screen/models/story_model.dart';
@@ -7,48 +8,74 @@ import 'package:android_dev/screens/home_screen/services/post_services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // ---------- Dependency injection ----------
-// Each service is created once, here. Everything else asks Riverpod for it
-// (ref.watch / ref.read) instead of calling PostServices() itself, so a test
-// can swap in a different service with overrideWithValue.
+// databaseProvider -> services -> data managers -> widgets.
+// Each service gets the database through its constructor, so a test can
+// swap the real database for an in-memory one with a single override.
 
-final postServicesProvider = Provider<PostServices>((ref) {
-  return PostServices()
-    ..batchAddPosts(mockPosts)
-    ..batchAddStories(mockStories);
-});
+final postServicesProvider = Provider<PostServices>(
+  (ref) => PostServices(ref.watch(databaseProvider)),
+);
 
 final commentServicesProvider = Provider<CommentServices>(
-  (ref) => CommentServices(),
+  (ref) => CommentServices(ref.watch(databaseProvider)),
 );
+
+/// Id of the logged-in user. `select` means: rebuild only when the id itself
+/// changes, not on every event of currentUserProvider.
+int? _userId(Ref ref) =>
+    ref.watch(currentUserProvider.select((user) => user.value?.id));
 
 // ---------- Data managers ----------
 
-/// Stories never change while the app runs, so a plain Provider is enough.
-final storiesProvider = Provider<List<StoryModel>>(
-  (ref) => ref.watch(postServicesProvider).stories,
+final storiesProvider = StreamProvider<List<StoryModel>>(
+  (ref) => ref.watch(postServicesProvider).watchStories(),
 );
 
-/// Owns the feed state. The services do the work; the notifier publishes a
-/// new list afterwards so every widget watching [feedProvider] rebuilds.
-// ponytail: models are mutable and changed in place by the services;
-// switch to immutable models + copyWith if posts are ever shared across screens.
-class FeedNotifier extends Notifier<List<PostModel>> {
-  PostServices get _posts => ref.read(postServicesProvider);
-  CommentServices get _comments => ref.read(commentServicesProvider);
-
+/// Owns the feed. The state is a live database query: after any change
+/// (like, comment, another user logs in) the database sends a new list and
+/// every widget watching [feedProvider] rebuilds. The methods only write to
+/// the database; they never touch `state` themselves.
+class FeedNotifier extends StreamNotifier<List<PostModel>> {
   @override
-  List<PostModel> build() => [...ref.watch(postServicesProvider).posts];
+  Stream<List<PostModel>> build() =>
+      ref.watch(postServicesProvider).watchFeed(_userId(ref));
 
-  void toggleLike(PostModel post) {
-    _posts.toggleLike(post);
-    state = [..._posts.posts];
+  int? get _currentUserId => ref.read(currentUserProvider).value?.id;
+
+  Future<void> toggleLike(PostModel post) async {
+    final userId = _currentUserId;
+    if (userId == null) return;
+    await ref
+        .read(postServicesProvider)
+        .toggleLike(postId: post.id, userId: userId);
   }
 
-  void toggleCommentLike(CommentModel comment) {
-    _comments.toggleLike(comment);
-    state = [..._posts.posts];
+  Future<void> toggleCommentLike(CommentModel comment) async {
+    final userId = _currentUserId;
+    if (userId == null) return;
+    await ref
+        .read(commentServicesProvider)
+        .toggleLike(commentId: comment.id, userId: userId);
+  }
+
+  Future<void> addComment({required int postId, required String text}) async {
+    final userId = _currentUserId;
+    if (userId == null || text.trim().isEmpty) return;
+    await ref
+        .read(commentServicesProvider)
+        .addComment(postId: postId, authorId: userId, text: text);
   }
 }
 
-final feedProvider =
-    NotifierProvider<FeedNotifier, List<PostModel>>(FeedNotifier.new);
+final feedProvider = StreamNotifierProvider<FeedNotifier, List<PostModel>>(
+  FeedNotifier.new,
+);
+
+/// Comments of one post: ref.watch(commentsProvider(post.id)).
+/// autoDispose closes the query when the comments sheet is closed.
+final commentsProvider = StreamProvider.autoDispose
+    .family<List<CommentModel>, int>(
+      (ref, postId) => ref
+          .watch(commentServicesProvider)
+          .watchComments(postId: postId, userId: _userId(ref)),
+    );

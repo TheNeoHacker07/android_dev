@@ -1,176 +1,104 @@
-import 'package:android_dev/screens/home_screen/models/comments_model.dart';
-import 'package:android_dev/screens/home_screen/models/post_model.dart';
-import 'package:android_dev/screens/home_screen/models/story_model.dart';
-
-// Fake data until the app has a real server.
+// Starter content written into the database the first time the app runs
+// (see AppDatabase.migration -> onCreate). After that everything comes from
+// the database.
 // Post photos: picsum.photos/id/<n>. Avatars: i.pravatar.cc/?img=<n>.
 
-String _avatar(int n) => 'https://i.pravatar.cc/150?img=$n';
+String avatarUrl(int n) => 'https://i.pravatar.cc/150?img=$n';
 String _photo(int n) => 'https://picsum.photos/id/$n/600/400';
 
-final List<StoryModel> mockStories = [
-  StoryModel(username: 'aida', imageUrl: _avatar(5)),
-  StoryModel(username: 'timur', imageUrl: _avatar(12)),
-  StoryModel(username: 'aliya', imageUrl: _avatar(9)),
-  StoryModel(username: 'nursultan', imageUrl: _avatar(14)),
-  StoryModel(username: 'dana', imageUrl: _avatar(16)),
-  StoryModel(username: 'erlan', imageUrl: _avatar(33)),
-  StoryModel(username: 'kamila', imageUrl: _avatar(20)),
-  StoryModel(username: 'bekzat', imageUrl: _avatar(51)),
-  StoryModel(username: 'aruzhan', imageUrl: _avatar(25)),
-  StoryModel(username: 'askar', imageUrl: _avatar(59)),
+/// Every seed user can log in with this password, e.g. aida / password123.
+const seedPassword = 'password123';
+
+const List<({String username, int avatar})> seedUsers = [
+  (username: 'aida', avatar: 5),
+  (username: 'timur', avatar: 12),
+  (username: 'aliya', avatar: 9),
+  (username: 'nursultan', avatar: 14),
+  (username: 'dana', avatar: 16),
+  (username: 'erlan', avatar: 33),
+  (username: 'kamila', avatar: 20),
+  (username: 'bekzat', avatar: 51),
+  (username: 'aruzhan', avatar: 25),
+  (username: 'askar', avatar: 59),
 ];
 
-final List<PostModel> mockPosts = [
-  PostModel(
-    imageUrl: _photo(10),
-    description: 'Morning walk in the forest 🌲',
-    comments: [
-      CommentModel(id: 'p1_c1', text: 'So peaceful!', author: 'aida', userImageUrl: _avatar(5)),
-      CommentModel(id: 'p1_c2', text: 'Where is this?', author: 'timur', userImageUrl: _avatar(12)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(11),
-    description: 'Weekend in the mountains',
-    comments: [
-      CommentModel(id: 'p2_c1', text: 'Take me with you next time', author: 'dana', userImageUrl: _avatar(16)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(15),
-    description: 'Found a hidden waterfall 💧',
-    comments: [
-      CommentModel(id: 'p3_c1', text: 'Wow, amazing view', author: 'erlan', userImageUrl: _avatar(33)),
-      CommentModel(id: 'p3_c2', text: 'Is the water cold?', author: 'kamila', userImageUrl: _avatar(20)),
-      CommentModel(id: 'p3_c3', text: 'Adding this to my list', author: 'askar', userImageUrl: _avatar(59)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(17),
-    description: 'Road trip day 1 🚗',
-    comments: [
-      CommentModel(id: 'p4_c1', text: 'Safe travels!', author: 'aliya', userImageUrl: _avatar(9)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(20),
-    description: 'New desk setup, finally done',
-    comments: [
-      CommentModel(id: 'p5_c1', text: 'Clean setup 🔥', author: 'bekzat', userImageUrl: _avatar(51)),
-      CommentModel(id: 'p5_c2', text: 'What keyboard is that?', author: 'nursultan', userImageUrl: _avatar(14)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(24),
-    description: 'Started reading a new book 📖',
-    comments: [
-      CommentModel(id: 'p6_c1', text: 'Tell me if it is good', author: 'aruzhan', userImageUrl: _avatar(25)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(28),
-    description: 'Sunset by the lake',
-    comments: [
-      CommentModel(id: 'p7_c1', text: 'Those colors!', author: 'aida', userImageUrl: _avatar(5)),
-      CommentModel(id: 'p7_c2', text: 'Perfect timing', author: 'erlan', userImageUrl: _avatar(33)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(29),
-    description: 'Snow on the peaks already ❄️',
-    comments: [
-      CommentModel(id: 'p8_c1', text: 'Winter is coming', author: 'timur', userImageUrl: _avatar(12)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(30),
-    description: 'Coffee first, then code ☕',
-    comments: [
-      CommentModel(id: 'p9_c1', text: 'Same every morning', author: 'askar', userImageUrl: _avatar(59)),
-      CommentModel(id: 'p9_c2', text: 'Which cafe?', author: 'dana', userImageUrl: _avatar(16)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(36),
-    description: 'Exploring the old city streets',
-    comments: [
-      CommentModel(id: 'p10_c1', text: 'Love this architecture', author: 'kamila', userImageUrl: _avatar(20)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(37),
-    description: 'Picnic with friends 🧺',
-    comments: [
-      CommentModel(id: 'p11_c1', text: 'Why was I not invited 😅', author: 'nursultan', userImageUrl: _avatar(14)),
-      CommentModel(id: 'p11_c2', text: 'Great day!', author: 'aliya', userImageUrl: _avatar(9)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(39),
-    description: 'Night sky from the campsite ✨',
-    comments: [
-      CommentModel(id: 'p12_c1', text: 'You can see so many stars', author: 'bekzat', userImageUrl: _avatar(51)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(42),
-    description: 'Tried a new restaurant tonight',
-    comments: [
-      CommentModel(id: 'p13_c1', text: 'How was the food?', author: 'aruzhan', userImageUrl: _avatar(25)),
-      CommentModel(id: 'p13_c2', text: 'Looks cozy', author: 'timur', userImageUrl: _avatar(12)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(48),
-    description: 'Late night study session 💻',
-    comments: [
-      CommentModel(id: 'p14_c1', text: 'Good luck on the exam!', author: 'aida', userImageUrl: _avatar(5)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(49),
-    description: 'Fields of green after the rain',
-    comments: [
-      CommentModel(id: 'p15_c1', text: 'Fresh air vibes', author: 'erlan', userImageUrl: _avatar(33)),
-      CommentModel(id: 'p15_c2', text: 'Beautiful shot', author: 'kamila', userImageUrl: _avatar(20)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(54),
-    description: 'Climbed to the top today 🏔️',
-    comments: [
-      CommentModel(id: 'p16_c1', text: 'Respect, that is high!', author: 'askar', userImageUrl: _avatar(59)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(57),
-    description: 'Bike ride along the river 🚲',
-    comments: [
-      CommentModel(id: 'p17_c1', text: 'Let us ride together on Sunday', author: 'dana', userImageUrl: _avatar(16)),
-      CommentModel(id: 'p17_c2', text: 'Nice route', author: 'bekzat', userImageUrl: _avatar(51)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(58),
-    description: 'Quiet beach, no people around',
-    comments: [
-      CommentModel(id: 'p18_c1', text: 'Paradise 🏝️', author: 'aliya', userImageUrl: _avatar(9)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(62),
-    description: 'Autumn leaves everywhere 🍂',
-    comments: [
-      CommentModel(id: 'p19_c1', text: 'My favorite season', author: 'aruzhan', userImageUrl: _avatar(25)),
-      CommentModel(id: 'p19_c2', text: 'So warm colors', author: 'nursultan', userImageUrl: _avatar(14)),
-    ],
-  ),
-  PostModel(
-    imageUrl: _photo(65),
-    description: 'Last day of vacation, see you soon!',
-    comments: [
-      CommentModel(id: 'p20_c1', text: 'Come back soon!', author: 'timur', userImageUrl: _avatar(12)),
-    ],
-  ),
+typedef SeedPost = ({
+  String author,
+  String imageUrl,
+  String description,
+  List<(String author, String text)> comments,
+});
+
+final List<SeedPost> seedPosts = [
+  (author: 'aida', imageUrl: _photo(10), description: 'Morning walk in the forest 🌲', comments: [
+    ('aida', 'So peaceful!'),
+    ('timur', 'Where is this?'),
+  ]),
+  (author: 'timur', imageUrl: _photo(11), description: 'Weekend in the mountains', comments: [
+    ('dana', 'Take me with you next time'),
+  ]),
+  (author: 'aliya', imageUrl: _photo(15), description: 'Found a hidden waterfall 💧', comments: [
+    ('erlan', 'Wow, amazing view'),
+    ('kamila', 'Is the water cold?'),
+    ('askar', 'Adding this to my list'),
+  ]),
+  (author: 'nursultan', imageUrl: _photo(17), description: 'Road trip day 1 🚗', comments: [
+    ('aliya', 'Safe travels!'),
+  ]),
+  (author: 'dana', imageUrl: _photo(20), description: 'New desk setup, finally done', comments: [
+    ('bekzat', 'Clean setup 🔥'),
+    ('nursultan', 'What keyboard is that?'),
+  ]),
+  (author: 'erlan', imageUrl: _photo(24), description: 'Started reading a new book 📖', comments: [
+    ('aruzhan', 'Tell me if it is good'),
+  ]),
+  (author: 'kamila', imageUrl: _photo(28), description: 'Sunset by the lake', comments: [
+    ('aida', 'Those colors!'),
+    ('erlan', 'Perfect timing'),
+  ]),
+  (author: 'bekzat', imageUrl: _photo(29), description: 'Snow on the peaks already ❄️', comments: [
+    ('timur', 'Winter is coming'),
+  ]),
+  (author: 'aruzhan', imageUrl: _photo(30), description: 'Coffee first, then code ☕', comments: [
+    ('askar', 'Same every morning'),
+    ('dana', 'Which cafe?'),
+  ]),
+  (author: 'askar', imageUrl: _photo(36), description: 'Exploring the old city streets', comments: [
+    ('kamila', 'Love this architecture'),
+  ]),
+  (author: 'aida', imageUrl: _photo(37), description: 'Picnic with friends 🧺', comments: [
+    ('nursultan', 'Why was I not invited 😅'),
+    ('aliya', 'Great day!'),
+  ]),
+  (author: 'timur', imageUrl: _photo(39), description: 'Night sky from the campsite ✨', comments: [
+    ('bekzat', 'You can see so many stars'),
+  ]),
+  (author: 'aliya', imageUrl: _photo(42), description: 'Tried a new restaurant tonight', comments: [
+    ('aruzhan', 'How was the food?'),
+    ('timur', 'Looks cozy'),
+  ]),
+  (author: 'nursultan', imageUrl: _photo(48), description: 'Late night study session 💻', comments: [
+    ('aida', 'Good luck on the exam!'),
+  ]),
+  (author: 'dana', imageUrl: _photo(49), description: 'Fields of green after the rain', comments: [
+    ('erlan', 'Fresh air vibes'),
+    ('kamila', 'Beautiful shot'),
+  ]),
+  (author: 'erlan', imageUrl: _photo(54), description: 'Climbed to the top today 🏔️', comments: [
+    ('askar', 'Respect, that is high!'),
+  ]),
+  (author: 'kamila', imageUrl: _photo(57), description: 'Bike ride along the river 🚲', comments: [
+    ('dana', 'Let us ride together on Sunday'),
+    ('bekzat', 'Nice route'),
+  ]),
+  (author: 'bekzat', imageUrl: _photo(58), description: 'Quiet beach, no people around', comments: [
+    ('aliya', 'Paradise 🏝️'),
+  ]),
+  (author: 'aruzhan', imageUrl: _photo(62), description: 'Autumn leaves everywhere 🍂', comments: [
+    ('aruzhan', 'My favorite season'),
+    ('nursultan', 'So warm colors'),
+  ]),
+  (author: 'askar', imageUrl: _photo(65), description: 'Last day of vacation, see you soon!', comments: [
+    ('timur', 'Come back soon!'),
+  ]),
 ];
